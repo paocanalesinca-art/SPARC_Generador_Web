@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPARC — Generador de Campañas para Maestrías UP</title>
+<style>
+  :root {
+    --primary:#17365d;
+    --secondary:#2f75b5;
+    --accent:#f59e0b;
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#64748b;
+    --border:#dbe3ee;
+    --success:#15803d;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .container { max-width:1180px; margin:0 auto; padding:28px 18px 50px; }
+  header {
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    color:white; border-radius:18px; padding:28px;
+    margin-bottom:22px; box-shadow:0 10px 30px rgba(23,54,93,.16);
+  }
+  header h1 { margin:0 0 8px; font-size:28px; }
+  header p { margin:0; opacity:.92; line-height:1.5; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:22px; box-shadow:0 4px 14px rgba(15,23,42,.05);
+  }
+  .full { grid-column:1 / -1; }
+  h2 { margin:0 0 18px; font-size:19px; color:var(--primary); }
+  .field { margin-bottom:15px; }
+  label { display:block; font-weight:700; margin-bottom:7px; font-size:14px; }
+  input, select, textarea {
+    width:100%; border:1px solid #cbd5e1; border-radius:9px;
+    padding:11px 12px; font:inherit; background:white; color:var(--text);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline:none; border-color:var(--secondary);
+    box-shadow:0 0 0 3px rgba(47,117,181,.12);
+  }
+  textarea { min-height:100px; resize:vertical; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .hint { color:var(--muted); font-size:12px; margin-top:5px; }
+  .conditional { display:none; margin-top:12px; padding:14px; background:#f8fafc; border-radius:10px; border:1px dashed var(--border); }
+  .conditional.show { display:block; }
+  .checkbox-row { display:flex; align-items:center; gap:9px; margin:10px 0 0; }
+  .checkbox-row input { width:auto; }
+  .summary {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px;
+  }
+  .metric { background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:12px; }
+  .metric small { display:block; color:var(--muted); margin-bottom:5px; }
+  .metric strong { font-size:17px; color:var(--primary); }
+  .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  button {
+    border:0; border-radius:10px; padding:12px 18px; font-weight:700;
+    cursor:pointer; font-size:14px;
+  }
+  .primary { background:var(--primary); color:white; }
+  .secondary { background:#e8eef6; color:var(--primary); }
+  .success { background:var(--success); color:white; }
+  .output { margin-top:22px; }
+  .version {
+    border:1px solid var(--border); border-radius:12px; padding:16px;
+    margin-bottom:12px; background:#fff;
+  }
+  .version h3 { margin:0 0 10px; color:var(--primary); font-size:16px; }
+  .caption {
+    white-space:pre-wrap; line-height:1.55; background:#f8fafc;
+    border-radius:9px; padding:14px; min-height:90px;
+  }
+  .counter { text-align:right; color:var(--muted); font-size:12px; margin-top:5px; }
+  .warning { color:#b45309; font-size:13px; margin-top:8px; }
+  .ok { color:var(--success); font-size:13px; margin-top:8px; }
+  @media(max-width:800px) {
+    .grid,.row { grid-template-columns:1fr; }
+    .summary { grid-template-columns:1fr 1fr; }
+    .full { grid-column:auto; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🎯 SPARC — Generador de Campañas para Maestrías UP</h1>
+    <p>Formulario para configurar una campaña y generar el prompt listo para SPARC — WhatsApp &amp; Chattigo.</p>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1. Programa y personalización</h2>
+
+      <div class="field">
+        <label for="maestria">Nombre de la maestría *</label>
+        <input id="maestria" placeholder="Ej.: MBA Weekend">
+      </div>
+
+      <div class="field">
+        <label for="brochure">Link del brochure</label>
+        <input id="brochure" type="url" placeholder="https://...">
+      </div>
+
+      <div class="field">
+        <label for="personalizacion">Personalización con nombre</label>
+        <select id="personalizacion">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="inicio">Fecha de inicio</label>
+        <input id="inicio" type="text" placeholder="Ej.: Octubre 2026, noviembre 2026 o 15 de octubre de 2026">
+        <div class="hint">Puedes ingresar solo el mes, mes y año o una fecha específica.</div>
+      </div>
+
+      <div class="field">
+        <label for="modalidad">Modalidad</label>
+        <select id="modalidad">
+          <option value="">Seleccionar modalidad</option>
+          <option value="Asincrónico">Asincrónico</option>
+          <option value="Sincrónico">Sincrónico</option>
+          <option value="Híbrido">Híbrido</option>
+          <option value="Semipresencial">Semipresencial</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div id="modalidadOtroBox" class="conditional">
+        <div class="field" style="margin-bottom:0">
+          <label for="modalidadOtro">Especificar modalidad</label>
+          <input id="modalidadOtro" placeholder="Escribe la modalidad">
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Experiencia internacional</h2>
+
+      <div class="field">
+        <label for="viaje">¿Incluye viaje / experiencia internacional?</label>
+        <select id="viaje">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select>
+      </div>
+
+      <div id="viajeBox" class="conditional">
+        <div class="row">
+          <div class="field">
+            <label for="universidad">Universidad</label>
+            <input id="universidad" placeholder="Nombre de la universidad">
+          </div>
+          <div class="field">
+            <label for="pais">País</label>
+            <input id="pais" placeholder="País">
+          </div>
+        </div>
+        <div class="hint">Solo se incorporará al mensaje si fue indicado como parte de la campaña.</div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <h2>3. Oferta e inversión</h2>
+
+      <div class="row">
+        <div class="field">
+          <label for="regular">Inversión regular</label>
+          <input id="regular" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label for="descuento">Descuento (%)</label>
+          <input id="descuento" type="number" min="0" max="100" step="0.01" placeholder="0">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="matricula">Matrícula</label>
+          <input id="matricula" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label for="moneda">Moneda</label>
+          <select id="moneda">
+            <option value="S/">S/</option>
+            <option value="$">$</option>
+            <option value="US$">US$</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="vigencia">¿El descuento es válido solo por 48 horas?</label>
+        <select id="vigencia">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select>
+      </div>
+
+      <div class="summary">
+        <div class="metric"><small>Monto de descuento</small><strong id="montoDesc">—</strong></div>
+        <div class="metric"><small>Inversión final</small><strong id="final">—</strong></div>
+        <div class="metric"><small>Matrícula</small><strong id="matriculaView">—</strong></div>
+        <div class="metric"><small>Vigencia</small><strong id="vigenciaView">—</strong></div>
+      </div>
+      <div id="calcMsg" class="hint"></div>
+    </section>
+
+    <section class="card">
+      <h2>4. Financiamiento</h2>
+
+      <div class="field">
+        <label for="financiamiento">¿Hay financiamiento?</label>
+        <select id="financiamiento">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select>
+      </div>
+
+      <div id="finBox" class="conditional">
+        <div class="row">
+          <div class="field">
+            <label for="cuotas">Número de cuotas</label>
+            <input id="cuotas" type="number" min="1" step="1" placeholder="Ej.: 12">
+          </div>
+          <div class="field">
+            <label for="montoCuota">Monto por cuota</label>
+            <input id="montoCuota" type="number" min="0" step="0.01" placeholder="Ej.: 1500">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5. Información adicional</h2>
+      <div class="field">
+        <label for="datos">Datos o condiciones adicionales</label>
+        <textarea id="datos" placeholder="Modalidad, horarios, beneficios confirmados, condiciones comerciales, CTA específico, etc."></textarea>
+        <div class="hint">No ingreses información que no haya sido confirmada para la campaña.</div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <h2>6. Generar configuración para SPARC</h2>
+      <p class="hint">El botón genera un prompt estructurado para pegarlo junto con tu brochure en SPARC.</p>
+
+      <div class="actions">
+        <button class="primary" onclick="generar()">Generar prompt</button>
+        <button class="success" onclick="copiar()">Copiar prompt</button>
+        <button class="secondary" onclick="descargar()">Descargar .txt</button>
+        <button class="secondary" onclick="limpiar()">Limpiar</button>
+      </div>
+
+      <div class="output">
+        <label for="resultado">Prompt generado</label>
+        <textarea id="resultado" style="min-height:430px;" readonly></textarea>
+      </div>
+
+      <div class="output">
+        <label for="copyEjecutado">Copy generado — SPARC ejecutado</label>
+        <textarea id="copyEjecutado" style="min-height:620px;" readonly placeholder="Aquí aparecerán las 3 versiones del copy listas para WhatsApp / Chattigo."></textarea>
+        <div class="hint">El HTML genera el copy aplicando las reglas principales de SPARC con los datos ingresados.</div>
+      </div>
+
+      <div class="actions">
+        <button class="success" onclick="copiarCopy()">Copiar copy</button>
+        <button class="secondary" onclick="descargarCopy()">Descargar copy .txt</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function money(v) {
+  if (v === "" || v === null || isNaN(v)) return "—";
+  const moneda = $("moneda").value;
+  return moneda + " " + Number(v).toLocaleString("es-PE", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function calcular() {
+  const regular = parseFloat($("regular").value);
+  const pct = parseFloat($("descuento").value);
+  const matricula = parseFloat($("matricula").value);
+
+  let descuento = "";
+  let final = "";
+
+  if (!isNaN(regular) && !isNaN(pct)) {
+    descuento = regular * pct / 100;
+    final = regular - descuento;
+    $("montoDesc").textContent = money(descuento);
+    $("final").textContent = money(final);
+    $("calcMsg").textContent = "El monto de descuento y la inversión final se calculan automáticamente.";
+    $("calcMsg").className = "ok";
+  } else {
+    $("montoDesc").textContent = "—";
+    $("final").textContent = "—";
+    $("calcMsg").textContent = "Ingresa inversión regular y porcentaje de descuento para calcular.";
+    $("calcMsg").className = "hint";
+  }
+
+  $("matriculaView").textContent = isNaN(matricula) ? "—" : money(matricula);
+  $("vigenciaView").textContent = $("vigencia").value === "si" ? "48 horas" : "No indicada";
+}
+
+function toggles() {
+  $("viajeBox").classList.toggle("show", $("viaje").value === "si");
+  $("finBox").classList.toggle("show", $("financiamiento").value === "si");
+  $("modalidadOtroBox").classList.toggle("show", $("modalidad").value === "Otro");
+  calcular();
+}
+
+["regular","descuento","matricula","moneda","vigencia"].forEach(id => $(id).addEventListener("input", calcular));
+["moneda","vigencia","viaje","financiamiento","modalidad"].forEach(id => $(id).addEventListener("change", toggles));
+
+function valor(id) { return ($(id).value || "").trim(); }
+
+function generar() {
+  const nombre = valor("maestria");
+  if (!nombre) {
+    alert("Ingresa el nombre de la maestría.");
+    $("maestria").focus();
+    return;
+  }
+
+  const regular = parseFloat($("regular").value);
+  const pct = parseFloat($("descuento").value);
+  const matricula = parseFloat($("matricula").value);
+  const tieneDesc = !isNaN(pct) && pct > 0;
+  const tieneRegular = !isNaN(regular);
+  const montoDesc = (tieneRegular && tieneDesc) ? regular * pct / 100 : null;
+  const inversionFinal = (tieneRegular && tieneDesc) ? regular - montoDesc : (tieneRegular ? regular : null);
+
+  const modalidad = $("modalidad").value === "Otro"
+    ? (valor("modalidadOtro") || "Otro")
+    : valor("modalidad");
+
+  let p = [];
+  p.push("CONFIGURACIÓN DE CAMPAÑA — SPARC | MAESTRÍAS UP");
+  p.push("");
+  p.push("Usa esta información como datos comerciales de la campaña actual. No reutilices precios, descuentos, fechas, beneficios, viajes, financiamiento ni argumentos de campañas anteriores.");
+  p.push("");
+  p.push("PROGRAMA");
+  p.push("• Maestría: " + nombre);
+  p.push("• Brochure: " + (valor("brochure") || "No proporcionado"));
+  p.push("• Personalización con nombre: " + (valor("personalizacion") === "si" ? "Sí" : "No"));
+  p.push("• Fecha de inicio: " + (valor("inicio") || "No proporcionada"));
+  p.push("• Modalidad: " + (modalidad || "No proporcionada"));
+  p.push("");
+  p.push("EXPERIENCIA INTERNACIONAL");
+  p.push("• Viaje / experiencia internacional: " + (valor("viaje") === "si" ? "Sí" : "No"));
+  if (valor("viaje") === "si") {
+    p.push("• Universidad: " + (valor("universidad") || "No proporcionada"));
+    p.push("• País: " + (valor("pais") || "No proporcionado"));
+  }
+  p.push("");
+  p.push("OFERTA COMERCIAL");
+  p.push("• Inversión regular: " + (tieneRegular ? money(regular) : "No proporcionada"));
+  p.push("• Descuento: " + (tieneDesc ? pct + "%" : "No indicado"));
+  p.push("• Monto de descuento: " + (montoDesc !== null ? money(montoDesc) : "No calculado"));
+  p.push("• Inversión final: " + (inversionFinal !== null ? money(inversionFinal) : "No calculada"));
+  p.push("• Matrícula: " + (!isNaN(matricula) ? money(matricula) : "No proporcionada"));
+  p.push("• Vigencia de 48 horas: " + (valor("vigencia") === "si" ? "Sí" : "No"));
+  if (valor("vigencia") === "si" && tieneDesc) {
+    p.push("• Regla obligatoria: debajo del descuento debe aparecer exactamente: 🚨 _*Válido solo por 48 horas*_🚨");
+  }
+  p.push("");
+  p.push("FINANCIAMIENTO");
+  p.push("• Financiamiento: " + (valor("financiamiento") === "si" ? "Sí" : "No"));
+  if (valor("financiamiento") === "si") {
+    p.push("• Número de cuotas: " + (valor("cuotas") || "No proporcionado"));
+    p.push("• Monto por cuota: " + (valor("montoCuota") ? money(parseFloat(valor("montoCuota"))) : "No proporcionado"));
+  }
+  p.push("");
+  p.push("INFORMACIÓN ADICIONAL");
+  p.push(valor("datos") || "No proporcionada");
+  p.push("");
+  p.push("REGLAS DE REDACCIÓN");
+  p.push("• Mantén lenguaje profesional, ejecutivo, cercano pero formal; evita lenguaje excesivamente coloquial.");
+  p.push("• Máximo 7 emojis por versión.");
+  p.push("• Máximo 1,024 caracteres por versión.");
+  p.push("• No inventes ningún dato.");
+  p.push("• Genera 3 versiones: V1 Impacto + Oferta; V2 Carrera + Transformación; V3 Oportunidad + Cierre.");
+  p.push("• Si la campaña tiene descuento y vigencia de 48 horas, coloca inmediatamente debajo del descuento: 🚨 _*Válido solo por 48 horas*_🚨");
+  p.push("• Termina cada versión con un CTA claro y profesional.");
+  p.push("• La fecha puede expresarse como mes, mes y año o fecha específica; respeta exactamente el dato ingresado.");
+  p.push("• Incluye la modalidad indicada sin inventar características adicionales.");
+  p.push("• Si falta un dato indispensable, solicítalo antes de presentar una cifra o condición como definitiva.");
+  p.push("");
+  p.push("Genera los captions siguiendo las instrucciones maestras de SPARC y la información anterior.");
+  $("resultado").value = p.join("\n");
+
+  // COPY EJECUTADO
+  const saludo = $("personalizacion").value === "si" ? "Hola, [Nombre]." : "Hola.";
+  const inicio = valor("inicio");
+  const bro = valor("brochure");
+  const viajeTexto = valor("viaje") === "si"
+    ? `🌎 ${valor("universidad") ? valor("universidad") : "Experiencia internacional"}${valor("pais") ? " | " + valor("pais") : ""}.`
+    : "";
+  const modalidadTexto = modalidad ? `📚 Modalidad: *${modalidad}*.` : "";
+  const inicioTexto = inicio ? `📅 Inicio: *${inicio}*.` : "";
+  const matriculaTexto = !isNaN(matricula) ? `Matrícula: *${money(matricula)}*.` : "";
+  const financiamientoTexto = valor("financiamiento") === "si"
+    ? `💳 Financiamiento: *${valor("cuotas") || "—"} cuotas*${valor("montoCuota") ? ` de ${money(parseFloat(valor("montoCuota")))}` : ""}.`
+    : "";
+  const urgencia = valor("vigencia") === "si" && tieneDesc ? "🚨 _*Válido solo por 48 horas*_🚨" : "";
+  const oferta = tieneRegular
+    ? `💰 Inversión regular: *${money(regular)}*${tieneDesc ? `\n🎁 Descuento: *${pct}%*\n${urgencia}\nAhorro: *${money(montoDesc)}*\nInversión final: *${money(inversionFinal)}*` : ""}`
+    : "";
+
+  const info = [inicioTexto, modalidadTexto, viajeTexto, oferta, matriculaTexto, financiamientoTexto].filter(Boolean).join("\n");
+  const cta = "¿Te comparto el detalle completo de la maestría y las condiciones de esta campaña?";
+  const brochureLine = bro ? `📎 Brochure: ${bro}` : "";
+
+  const v1 = [
+    "VERSIÓN 1 — Impacto + Oferta","",saludo,"",
+    `🎓 *${nombre}* | Pacífico Business School – Universidad del Pacífico`,"",
+    "Una oportunidad para impulsar tu desarrollo profesional con una propuesta académica alineada a nuevos desafíos directivos.","",
+    info,brochureLine,"",cta
+  ].join("\n").replace(/\n{3,}/g,"\n\n").trim();
+
+  const v2 = [
+    "VERSIÓN 2 — Carrera + Transformación","",saludo,"",
+    `🎓 *${nombre}*`,"",
+    "Fortalece tu preparación para asumir nuevos retos profesionales, desarrollar capacidades directivas y ampliar tu visión estratégica.","",
+    [modalidadTexto,inicioTexto,viajeTexto].filter(Boolean).join("\n"),"",
+    oferta,matriculaTexto,financiamientoTexto,brochureLine,"",cta
+  ].join("\n").replace(/\n{3,}/g,"\n\n").trim();
+
+  const v3 = [
+    "VERSIÓN 3 — Oportunidad + Cierre","",saludo,"",
+    `🎯 *${nombre}*`,"",
+    "Conoce una alternativa de formación ejecutiva diseñada para acompañar tu siguiente etapa profesional.","",
+    oferta,urgencia,
+    [inicioTexto,modalidadTexto,viajeTexto,matriculaTexto,financiamientoTexto].filter(Boolean).join("\n"),
+    brochureLine,"",cta
+  ].join("\n").replace(/\n{3,}/g,"\n\n").trim();
+
+  $("copyEjecutado").value = [v1,v2,v3].join("\n\n════════════════════════════════════\n\n");
+}
+async function copiar() {
+  if (!$("resultado").value.trim()) generar();
+  try {
+    await navigator.clipboard.writeText($("resultado").value);
+    alert("Prompt copiado al portapapeles.");
+  } catch(e) {
+    $("resultado").select();
+    document.execCommand("copy");
+    alert("Prompt copiado.");
+  }
+}
+
+function descargar() {
+  if (!$("resultado").value.trim()) generar();
+  const blob = new Blob([$("resultado").value], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "configuracion-campana-SPARC.txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function copiarCopy() {
+  if (!$("copyEjecutado").value.trim()) generar();
+  try {
+    await navigator.clipboard.writeText($("copyEjecutado").value);
+    alert("Copy copiado al portapapeles.");
+  } catch(e) {
+    $("copyEjecutado").select();
+    document.execCommand("copy");
+    alert("Copy copiado.");
+  }
+}
+
+function descargarCopy() {
+  if (!$("copyEjecutado").value.trim()) generar();
+  const blob = new Blob([$("copyEjecutado").value], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "copy-SPARC-maestria.txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function limpiar() {
+  document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+  $("personalizacion").value = "no";
+  $("viaje").value = "no";
+  $("financiamiento").value = "no";
+  $("vigencia").value = "no";
+  $("moneda").value = "S/";
+  $("resultado").value = "";
+  $("copyEjecutado").value = "";
+  $("modalidad").value = "";
+  $("modalidadOtro").value = "";
+  $("viajeBox").classList.remove("show");
+  $("finBox").classList.remove("show");
+  $("modalidadOtroBox").classList.remove("show");
+  calcular();
+}
+
+calcular();
+</script>
+</body>
+</html>
